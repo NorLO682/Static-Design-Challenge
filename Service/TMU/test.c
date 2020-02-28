@@ -33,7 +33,7 @@ void Test_Case_One(void)
 	
 	TMU_Start_Timer(6,PERUDIC,0,toggle_D);
 	TMU_Start_Timer(4, PERUDIC,1,toggle_C);
-	 if(TMU_Start_Timer(4, PERUDIC,2,toggle_A) ==( ERROR_FULL_BUFFER))
+	 if(TMU_Start_Timer(4, PERUDIC,2,toggle_A) ==( MODULE_ERROR_NUMBER +ERROR_FULL_BUFFER))
 	 {
 		 PORTB_DATA|=0x01;
 	 }
@@ -76,7 +76,7 @@ void Test_Case_Three(void)
 	TMU_Start_Timer(6,PERUDIC,1,toggle_C);
 	TMU_Stop_Timer(0);
 	
-	if( TMU_Stop_Timer(0) ==( ERROR_ELEMENT_NOT_EXIST))
+	if( TMU_Stop_Timer(0) ==( MODULE_ERROR_NUMBER+ERROR_ELEMENT_NOT_EXIST))
 	{
 		PORTB_DATA|=0x01;
 	}
@@ -94,28 +94,22 @@ void Test_Case_Four(void)
 	TMU_Init(&gstr_TMU_PbCfg);
    
 	
-	if(TMU_Stop_Timer(0)==( ERROR_EMPTY_BUFFER))
+	if(TMU_Stop_Timer(0)==(MODULE_ERROR_NUMBER + ERROR_EMPTY_BUFFER))
 	{
 		PORTB_DATA |= 0x01;
 	}
 	while (1)
 	{
-		//TMU_Dispatcher();	
+		TMU_Dispatcher();	
 	}
 	
 }
 
 int main (){
 	//Test_Case_One();
-// 	Test_Case_Two();
-	Test_Case_Three();
-//	Test_Case_Four();
-// PORTA_DIR=0xff;
-// PORTA_DATA=0x0f;
-// TMU_Init(&gstr_TMU_PbCfg);
-// TMU_Start_Timer(1,PERUDIC,0,toggle_A);
-// while(1){
-//  TMU_Dispatcher();
-// }
+ 	//Test_Case_Two();
+	//Test_Case_Three();
+	Test_Case_Four();
+
 	return 0;
 }
