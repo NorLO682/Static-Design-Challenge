@@ -33,7 +33,7 @@
 	
                       //ERROR_CODE//
 					  
-//#define MODULE_ERROR_NUMBER        (20)					  
+#define MODULE_ERROR_NUMBER        (20)					  
 #define  ERROR_NULL_PTR            (1)	
 #define  ERROR_UNILTILZED_MODULE   (2)	
 #define  ERROR_MULTIPLE_INIT       (3)

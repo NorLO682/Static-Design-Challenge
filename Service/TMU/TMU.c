@@ -8,7 +8,10 @@
 /*                                        INCLUDES                                                  */
 /***************************************************************************************************/
 #include "TMU.h"
-#include "TMU_PbCfg.h"
+//#include "TMU_PbCfg.h"
+
+
+#include "stdio.h"
 
 /*****************************************************************************************************/
 /*                                        DEFINES                                                   */
@@ -26,7 +29,8 @@
 #define STOP_TMU_ISR         0	
 #define TCNT_INITIAL_COUNT 6
 #define TCNT_NUMBER_OF_COUNT 250
-
+#define CONSUMER_MODE_PROTECTIN 2  
+#define ONE                     1
 typedef struct {void (*P_Consumer)(void);
 	uint8_t u8_Perudicity ;
 	uint8_t u8_ConsumerTime;
@@ -60,9 +64,7 @@ u8_ERROR_STATUS_t TMU_Init (const strTMU_Cfg_t * ConfigPtr )
 	      if (ConfigPtr != NULL)
 			 {
 				if( u8_TMU_Status==TUM_UNINIT){
-			 
-					 u8_TMU_Status = TMU_INIT;
-					 
+			
 					 strTMU_Control.u8_TimerID = ConfigPtr->u8_TimerID;
 					 
 					 strTMU_Control.u8_TMU_reslution = ConfigPtr->u8_TMU_reslution;
@@ -83,17 +85,18 @@ u8_ERROR_STATUS_t TMU_Init (const strTMU_Cfg_t * ConfigPtr )
 	 
 						Timer_Start(TMU_TimerCfg.u8_TimerCh,TCNT_NUMBER_OF_COUNT);
            
-		  
+		                 u8_TMU_Status = TMU_INIT;
+						 
 						}
 		
 					else
-						u8_TUM_ErrorStatus= ERROR_INVALIDE_PARAMETAR ;
+						u8_TUM_ErrorStatus= ERROR_INVALIDE_PARAMETAR+ MODULE_ERROR_NUMBER  ;
 						}
 			else 
-				u8_TUM_ErrorStatus= ERROR_MULTIPLE_INIT ;
+				u8_TUM_ErrorStatus= ERROR_MULTIPLE_INIT+ MODULE_ERROR_NUMBER  ;
 		}
 		else 
-			u8_TUM_ErrorStatus= ERROR_NULL_PTR ;
+			u8_TUM_ErrorStatus= ERROR_NULL_PTR+ MODULE_ERROR_NUMBER ;
 	 
 	return  u8_TUM_ErrorStatus;
 	
@@ -111,43 +114,55 @@ u8_ERROR_STATUS_t TMU_Init (const strTMU_Cfg_t * ConfigPtr )
 
 u8_ERROR_STATUS_t TMU_Start_Timer(uint8_t u8_consumerTime ,uint8_t u8_consumerMode,uint8_t u8_ConsumerId,void(*consumerPointer)(void) ){
 		u8_ERROR_STATUS_t u8_TUM_ErrorStatus = E_OK;
+		
 			if (consumerPointer!=NULL)
 	         {
 				 if( u8_TMU_Status==TMU_INIT)
 				 { 
-					 if (u8_ConsumerId< TMU_DUFFER_MAX_SIZE){
+					
+					if(TMU_BufferSize<(TMU_DUFFER_MAX_SIZE))
+					
+					{
+						 if (u8_ConsumerId<TMU_DUFFER_MAX_SIZE)
+						 {
 						 
-						if(TMU_BufferSize<TMU_DUFFER_MAX_SIZE)
-				               {
+						
 								   
 							if(astr_ConsumerBufferArr[u8_ConsumerId].u8_consumerId == NULL_ID  )
 								{
-								   astr_ConsumerBufferArr[u8_ConsumerId].P_Consumer=consumerPointer;
+									if(u8_consumerMode< CONSUMER_MODE_PROTECTIN)
+									{
+									   astr_ConsumerBufferArr[u8_ConsumerId].P_Consumer=consumerPointer;
 								  
-								   astr_ConsumerBufferArr[u8_ConsumerId].u8_Perudicity=u8_consumerMode;
+									   astr_ConsumerBufferArr[u8_ConsumerId].u8_Perudicity=u8_consumerMode;
 								   
-								   astr_ConsumerBufferArr[u8_ConsumerId].u8_ConsumerTime=(u8_consumerTime/strTMU_Control.u8_TMU_reslution);
+									   astr_ConsumerBufferArr[u8_ConsumerId].u8_ConsumerTime=(u8_consumerTime/strTMU_Control.u8_TMU_reslution);
 					
-								   astr_ConsumerBufferArr[u8_ConsumerId].u8_ConsumerCount=CONSUMER_START_COUNT;
+									   astr_ConsumerBufferArr[u8_ConsumerId].u8_ConsumerCount=CONSUMER_START_COUNT;
 					   
-					               astr_ConsumerBufferArr[u8_ConsumerId].u8_consumerId=u8_ConsumerId;
-								   TMU_BufferSize ++ ;
-				              }
+									   astr_ConsumerBufferArr[u8_ConsumerId].u8_consumerId=u8_ConsumerId;
+									   TMU_BufferSize ++ ;
+									 }
+									 else 
+										u8_TUM_ErrorStatus=MODULE_ERROR_NUMBER+ERROR_INVALIDE_PARAMETAR;
+								}
 							else 
-								u8_TUM_ErrorStatus= ERROE_EXIST_ID;
+								u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROE_EXIST_ID;
 							   }
 						 else 
-							u8_TUM_ErrorStatus=ERROR_INVALIDE_PARAMETAR;
+							u8_TUM_ErrorStatus=MODULE_ERROR_NUMBER+ERROR_INVALIDE_PARAMETAR;
 							  }
 					else
-						u8_TUM_ErrorStatus= ERROR_FULL_BUFFER;
+						u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROR_FULL_BUFFER;
+						
 		
 						 }
 				else 
-					u8_TUM_ErrorStatus= ERROR_UNILTILZED_MODULE;
+					u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROR_UNILTILZED_MODULE;
+					
 			    }
 		else
-			u8_TUM_ErrorStatus= ERROR_NULL_PTR ;
+			u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROR_NULL_PTR ;
 		
 return u8_TUM_ErrorStatus;
 }
@@ -174,16 +189,16 @@ u8_ERROR_STATUS_t TMU_Stop_Timer(uint8_t u8_ConsumerId)
 					 TMU_BufferSize--;
 					  } 
 					else  
-				u8_TUM_ErrorStatus= ERROR_ELEMENT_NOT_EXIST;
+				u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROR_ELEMENT_NOT_EXIST;
 				}
 				
 			else
 				
-				u8_TUM_ErrorStatus=ERROR_EMPTY_BUFFER ;
+				u8_TUM_ErrorStatus=MODULE_ERROR_NUMBER+ERROR_EMPTY_BUFFER ;
 			 }
 	 else
 
-		 u8_TUM_ErrorStatus= ERROR_UNILTILZED_MODULE;
+		 u8_TUM_ErrorStatus=MODULE_ERROR_NUMBER+ERROR_UNILTILZED_MODULE;
 			
  return u8_TUM_ErrorStatus;
 }
@@ -243,7 +258,7 @@ u8_ERROR_STATUS_t TMU_Dispatcher(void){
 			
 	}
 	else
-		u8_TUM_ErrorStatus= ERROR_UNILTILZED_MODULE;
+		u8_TUM_ErrorStatus= MODULE_ERROR_NUMBER+ERROR_UNILTILZED_MODULE;
 		
 return u8_TUM_ErrorStatus;
 		
@@ -267,7 +282,7 @@ u8_ERROR_STATUS_t TMU_DeInit ( void ) {
 		  Timer_Stop(strTMU_Control.u8_TimerID);
 		 }
 	  
-	u8_TUM_ErrorStatus=  ERROR_UNILTILZED_MODULE;
+	u8_TUM_ErrorStatus=  MODULE_ERROR_NUMBER+ERROR_UNILTILZED_MODULE;
 	
 	return u8_TUM_ErrorStatus;
 }
