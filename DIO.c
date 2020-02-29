@@ -1,178 +1,188 @@
 ﻿/*
  * DIO.c
  *
- * Created: 17/02/2020 11:33:51 ص
- *  Author: TOSHIBA
- */ 
+ * Created: 17/02/2020 02:20:28 م
+ *  Author: mo
+ */
+#include "Error_Report.h"
 #include "DIO.h"
+#include "DIO_config.h"
+/*
+*Input: DIO_Cfg_s -> to get PORT name, pins to be initiated and the required direction
+*Output: No output
+*In/Out:
+*Description: This function can set the direction of a full port, a nibble
+* 			  or even one pin.
+*/
 
-extern u8_ERROR_STATUS_t DIO_init (gstr_DIO_Cfg_t *pstr_DIOCfg){
-	if (pstr_DIOCfg!=NULL){
-	switch (pstr_DIOCfg->u8_GPIO){
+ERROR_STATUS DIO_init (DIO_Cfg_s *DIO_info)
+{	
+	uint8_t RET=0;
+	if (DIO_info== NULL)
+	{
+		RET=NULL_PTR+DIO_MODULE;
 		
-		case GPIOA :
-		switch (pstr_DIOCfg->u8_dir){
-			case INPUT:
-			PORTA_DIR&=~(pstr_DIOCfg->u8_pins);
-			break;
-			case OUTPUT:
-			PORTA_DIR|=	pstr_DIOCfg->u8_pins;
-			break;
-		}
-		break;
-		
-		case GPIOB :
-		switch (pstr_DIOCfg->u8_dir){
-			case INPUT:
-			PORTB_DIR&=~(pstr_DIOCfg->u8_pins);
-			break;
-			case OUTPUT:
-			PORTB_DIR|=	(pstr_DIOCfg->u8_pins);
-			break;
-		}
-		
-		break;
-		
-		case GPIOC :
-		switch (pstr_DIOCfg->u8_dir)
-		{
-			case INPUT:
-			PORTC_DIR&=~(pstr_DIOCfg->u8_pins);
-			break;
-			case OUTPUT:
-			PORTC_DIR|=	(pstr_DIOCfg->u8_pins);
-			break;
-		}
-		
-		break;
-		
-		case GPIOD :
-		switch (pstr_DIOCfg->u8_dir){
-			case INPUT:
-			PORTD_DIR&=~(pstr_DIOCfg->u8_pins);
-			break;
-			case OUTPUT:
-			PORTD_DIR|=(pstr_DIOCfg->u8_pins);
-			break;
-		}
-		break;
-			default:
-			return E_NOK;
-	}
-	return  E_OK;
-}
-else 
-return E_NOK;
+	}else{
+		switch(DIO_info->dir)
+			{	
+		case INPUT:
+		     	switch(DIO_info ->GPIO)
+		 		{
+					case GPIOA:
+					PORTA_DIR &=(~(DIO_info->pins))	;
+					break;
+					case GPIOB:
+					PORTB_DIR &=(~(DIO_info->pins))	;
+					break;
+					case GPIOC:
+					PORTC_DIR &=(~(DIO_info->pins))	;
+					break;
+					case GPIOD:
+					PORTD_DIR &=(~(DIO_info->pins))	;
+					break;
+					RET=E_OK;
+				}
+				RET=E_OK;
+				break;
 
-}
-extern u8_ERROR_STATUS_t DIO_Write (uint8_t u8_GPIO, uint8_t u8_pins, uint8_t u8_value){
-	switch (u8_GPIO){
-		case GPIOA :
-		/*PORTA_DATA=u8_value;*/
-		switch(u8_value){
-			
-			case HIGH:
-			PORTA_DATA|=u8_pins;
-			break;
-			case LOW :
-			PORTA_DATA&=(~u8_pins);
-			break;
-		}
-		break;
-		
-		case GPIOB :
-		
-		switch(u8_value){
-			
-			case HIGH:
-			PORTB_DATA|=u8_pins;
-			break;
-			case LOW :
-			PORTB_DATA&=(~u8_pins);
-			break;
-		}
-		break;
-		
-		case GPIOC :
-		switch(u8_value){
-			
-			case HIGH:
-			PORTC_DATA|=u8_pins;
-			break;
-			case LOW :
-			PORTC_DATA&=(~u8_pins);
-			break;
-		}
-		break;
-		
-		case GPIOD :
-		switch(u8_value){
-			
-			case HIGH:
-			PORTD_DATA|=u8_pins;
-			break;
-			case LOW :
-			PORTD_DATA&=(~u8_pins);
-			break;
-		}
-		break;
-			default:
-			return E_NOK;
-	}
-	return E_OK;
-}
+		case OUTPUT:
+			  switch(DIO_info ->GPIO)
+			  {
+				  case GPIOA:
+				  PORTA_DIR |=(DIO_info->pins)	;
+				  break;
+				  case GPIOB:
+				  PORTB_DIR |=(DIO_info->pins)	;
+				  break;
+				  case GPIOC:
+				  PORTC_DIR |=(DIO_info->pins)	;
+				  break;
+				  case GPIOD:
+				  PORTD_DIR |=(DIO_info->pins)	;
+				  break;
+				  RET=E_OK;
+			  }
+			  RET=E_OK;
+			  break;
 
-extern u8_ERROR_STATUS_t DIO_Read (uint8_t u8_GPIO,uint8_t u8_pins, uint8_t *pu8_data){
-	switch (u8_GPIO){
-		
-		case GPIOA :
-		*pu8_data=u8_pins & PORTA_PIN;
-		break;
-		
-		case GPIOB :
-		*pu8_data=u8_pins&PORTB_PIN;
-		break;
-		
-		case GPIOC :
-		*pu8_data=u8_pins &PORTC_PIN;
-		break;
-		
-		case GPIOD :
-		*pu8_data=u8_pins &PORTD_PIN;
-		break;
 			default:
-			return E_NOK;
+			RET=E_NOK;
 	}
 	
-	return E_NOK;
-
+}	
+return RET;
 }
 
-extern u8_ERROR_STATUS_t DIO_Toggle (uint8_t u8_GPIO, uint8_t u8_pins){
-	
-	switch (u8_GPIO){
-		
-		case GPIOA :
-		PORTA_DATA^=u8_pins;
-		break;
-		
-		case GPIOB :
-		PORTB_DATA^=u8_pins;
-		
-		case GPIOC :
-		PORTC_DATA^=u8_pins;
+ERROR_STATUS DIO_Write (uint8_t GPIO, uint8_t pins, uint8_t value)
+{uint8_t Ret=0;
+switch(value){
+case LOW:
+{
+switch (GPIO)
+{	case GPIOA:
+	PORTA_DATA &= ~(pins);   // 0b01111111
+Ret=E_OK;
+	break;
+	case GPIOB:
+	PORTB_DATA &= ~(pins);
+Ret=E_OK;
+	break;
+	case GPIOC:
+	PORTC_DATA &= ~(pins);
+Ret=E_OK;
+	break;
+	case GPIOD:
+	PORTD_DATA &= ~(pins);
+	Ret=E_OK;
+	break;
+	default:
+	Ret=E_NOK;
+	break;
+	}
+Ret=E_OK;
+break;
+}
+case HIGH:{
+switch (GPIO)
+{	case GPIOA:
+	PORTA_DATA |=(pins);
+Ret=E_OK;
+	break;
+	case GPIOB:
+	PORTB_DATA |=(pins);
+Ret=E_OK;
+	break;
+	case GPIOC:
+	PORTC_DATA |=(pins);
+Ret=E_OK;
+	break;
+	case GPIOD:
+	PORTD_DATA |=(pins);
+Ret=E_OK;
+	break;
+	default:
+	Ret=E_NOK;
+	break;
+}
+Ret=E_OK;
+break;
+}
+default:
+Ret=E_NOK;
+break;
+}
+return Ret;
+}
 
-		break;
-		
-		case GPIOD :
-		PORTD_DATA^=u8_pins;
 
+ERROR_STATUS DIO_Read (uint8_t GPIO,uint8_t pins, uint8_t *data)
+{
+
+switch (GPIO)
+{	case GPIOA:
+	*data=(PORTA_PIN & pins);
+	break;
+	case GPIOB:
+	*data=(PORTB_PIN & pins);
+	break;
+	case GPIOC:
+	*data=(PORTC_PIN & pins);
+	break;
+	case GPIOD:
+	*data=(PORTD_PIN & pins);
+	break;
+}
+if(*data > 0)
+{
+	*data = 1;
+}
+
+
+}
+ERROR_STATUS DIO_Toggle (uint8_t GPIO, uint8_t pins)
+{
+uint8_t ret=0;
+	switch (GPIO)
+	{	case GPIOA:
+		PORTA_DATA ^=(pins);
+		ret=E_OK;
+		break;
+		case GPIOB:
+		PORTB_DATA ^=(pins);
+ret=E_OK;
+		break;
+		case GPIOC:
+		PORTC_DATA ^=(pins);
+ret=E_OK;
+		break;
+		case GPIOD:
+		PORTD_DATA ^=(pins);
+ret=E_OK;
 		break;
 		default:
-       return E_NOK;
+		ret=E_NOK;
+		break;
 	}
-	return E_OK;
+
+return ret;
 }
-	
-
-
