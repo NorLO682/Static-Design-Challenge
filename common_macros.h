@@ -1,24 +1,27 @@
-﻿/*
- * common_macros.h
+/*
+ * cmmon_macros.h
  *
- * Created: 17/02/2020 11:35:08 ص
- *  Author: TOSHIBA
+ * Created: 2/17/2020 2:20:28 PM
+ *  Author: mahmo
  */ 
 
 
-#ifndef COMMON_MACROS_H_
-#define COMMON_MACROS_H_
+#ifndef CMMON_MACROS_H_
+#define CMMON_MACROS_H_
+#include "std_types.h"
 
-/* ERROR_GANDLING_STATUS */
-#define E_OK           (0)  //NO error
-#define E_NOK          (1)  //Error exist
+#define FCPU	  16000000UL
+#define  ZERO     0
+#define	 ONE	  1
+#define SET_BIT(number,bit)			((number)|=((1)<<(bit)))
+#define CLEAR_BIT(number,bit)		((number)&=(~((1)<<(bit))))
+#define TOGGLE(number,bit)			((number) ^ ((1)<<(bit)))
+#define SET_MASK(number,Mask)       ((number)|=(Mask))
+#define CLEAR_MASK(number,Mask)     ((number)&=(~(Mask)))
+#define TOGGLE_MASK(number,Mask)    ((number) ^= (Mask))
+#define BIT_IS_SET(number,bit)  ((number)&(1<<(bit)))
+#define BIT_IS_CLEARD(number,bit)   (!((number)&(1<<(bit))))
+#define MASK_IS_SET(number,mask)	((number)&(mask))
 
 
-#define CLEAR_BIT(REG,BIT) (REG&=~(BIT))
-#define SET_BIT(REG,BIT)   (REG|=(BIT))
-#define READ_BIT(REG,BIT) (REG&(BIT))
-
-typedef char u8_ERROR_STATUS_t ;
-
-
-#endif /* COMMON_MACROS_H_ */
+#endif /* CMMON_MACROS_H_ */

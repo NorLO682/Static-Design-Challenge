@@ -8,7 +8,7 @@
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
 
-#include "registers.h"
+#include "MCAL/registers.h"
 
 #define INT0_vect			__vector_1
 #define INT1_vect			__vector_2
@@ -31,11 +31,11 @@
 #define TWI_vect			__vector_19
 #define SPM_RDY_vect		__vector_20
 
-#define MY_ISR(vector, ...)            \
+#define ISR(vector, ...)            \
    void vector (void) __attribute__ ((signal, used, externally_visible)) __VA_ARGS__; \
    void vector (void)
 
-//#define sei()  __asm__ __volatile__ ("sei" ::)
-//#define cli()  __asm__ __volatile__ ("cli" ::)
+#define sei()  __asm__ __volatile__ ("sei" ::)
+#define cli()  __asm__ __volatile__ ("cli" ::)
 
 #endif /* INTERRUPT_H_ */
